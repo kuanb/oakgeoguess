@@ -16,6 +16,7 @@ rm -rf _dev && mkdir _dev
 cp index.html style.css app.js _dev/
 
 sed -i.bak "s@YOUR_MAPILLARY_ACCESS_TOKEN@${MAPILLARY_TOKEN}@g" _dev/app.js
+sed -i.bak "s@YOUR_MAPBOX_TOKEN@${MAPBOX_TOKEN}@g" _dev/app.js
 sed -i.bak "s@CACHE_BUST@local@g" _dev/index.html
 rm -f _dev/*.bak
 

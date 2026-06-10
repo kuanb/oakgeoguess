@@ -16,7 +16,7 @@
 const CONFIG = {
   MAPILLARY_TOKEN: 'YOUR_MAPILLARY_ACCESS_TOKEN',
 
-  MAPBOX_TOKEN: 'pk.eyJ1Ijoia3VhbmIiLCJhIjoiY21wN3VneDJkMDd5ZDJzcTFtM2w1d3V1ZSJ9.y5iV4TyPeSLLm3B6KN3vvA',
+  MAPBOX_TOKEN: 'YOUR_MAPBOX_TOKEN',
 
   // Oakland city boundary box [west, south, east, north]
   OAKLAND_BBOX: [-122.355, 37.632, -122.114, 37.885],
@@ -608,7 +608,8 @@ function showLoading(visible, msg) {
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   // Guard: token not configured
-  if (CONFIG.MAPILLARY_TOKEN === 'YOUR_MAPILLARY_ACCESS_TOKEN') {
+  if (!CONFIG.MAPILLARY_TOKEN) {
+    console.error('Mapillary token not set');
     document.getElementById('loading-screen').innerHTML = `
       <div class="loading-content">
         <div class="loading-logo">
