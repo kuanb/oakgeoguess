@@ -31,7 +31,7 @@ jobs:
         env:
           MAPILLARY_TOKEN: ${{ secrets.MAPILLARY_TOKEN }}
         run: |
-          sed -i "s|YOUR_MAPILLARY_ACCESS_TOKEN|${MAPILLARY_TOKEN}|g" app.js
+          sed -i "s@YOUR_MAPILLARY_ACCESS_TOKEN@${MAPILLARY_TOKEN}@g" app.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
