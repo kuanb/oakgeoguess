@@ -498,9 +498,26 @@ main {
 
 /* ---- Responsive ---- */
 @media (max-width: 680px) {
-  main { flex-direction: column; }
-  #viewer-container { flex: 1; min-height: 45vh; }
-  #map-panel { flex: none; height: 55vh; border-left: none; border-top: 1px solid var(--border); }
-  .header-left h1 { font-size: 0.82rem; }
+  /* Shrink header to reclaim vertical space */
+  header { height: 44px; padding: 0 0.75rem; }
+  :root { --header-h: 44px; }
+  .header-left h1 { font-size: 0.8rem; }
   .tries-dots .try-dot { width: 9px; height: 9px; }
+  .btn { padding: 0.32rem 0.7rem; font-size: 0.75rem; }
+
+  /* Stack viewer above map */
+  main { flex-direction: column; overflow: hidden; }
+
+  /* Use flex ratios so they always add up to exactly the remaining height */
+  #viewer-container { flex: 4; min-height: 0; }
+  #map-panel {
+    flex: 6;
+    min-height: 0;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Keep controls bar pinned and never clipped */
+  #map-controls { flex-shrink: 0; }
+  #guess-feedback { flex-shrink: 0; }
 }
