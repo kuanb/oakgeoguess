@@ -27,11 +27,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Inject Mapillary token
+      - name: Inject tokens and cache-bust
         env:
           MAPILLARY_TOKEN: ${{ secrets.MAPILLARY_TOKEN }}
         run: |
           sed -i "s@YOUR_MAPILLARY_ACCESS_TOKEN@${MAPILLARY_TOKEN}@g" app.js
+          sed -i "s@CACHE_BUST@${{ github.sha }}@g" index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
