@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oakland Geospy</title>
+
+  <!-- MapBox GL JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+
+  <!-- MapillaryJS -->
+  <script src="https://unpkg.com/mapillary-js@4.1.2/dist/mapillary.js"></script>
+  <link href="https://unpkg.com/mapillary-js@4.1.2/dist/mapillary.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <span class="logo-oak">OAK</span><span class="logo-land">LAND</span>
+      </div>
+      <p class="loading-tagline">GEOSPY</p>
+      <p id="loading-status">Finding a location...</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <h1>OAKLAND <span>GEOSPY</span></h1>
+    </div>
+    <div class="header-center">
+      <div class="tries-container">
+        <span class="tries-label">Tries</span>
+        <div class="tries-dots" id="tries-dots"></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="skip-btn" class="btn btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 4l10 8-10 8V4z"/><line x1="19" y1="4" x2="19" y2="20"/></svg>
+        Skip
+      </button>
+      <button id="stats-btn" class="btn btn-outline">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Stats
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Area -->
+  <main>
+    <!-- Street View Panel -->
+    <div id="viewer-container">
+      <div id="viewer"></div>
+      <div id="viewer-error" class="hidden">
+        <div class="error-content">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p>Couldn't load this location's street view.</p>
+          <button id="retry-load-btn" class="btn btn-primary">Try Another Spot</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Panel -->
+    <div id="map-panel">
+      <div id="map"></div>
+      <div id="guess-feedback" class="hidden">
+        <span id="feedback-icon"></span>
+        <span id="feedback-text"></span>
+      </div>
+      <div id="map-controls">
+        <p id="map-hint">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Click anywhere in Oakland to drop a pin
+        </p>
+        <button id="submit-btn" class="btn btn-primary" disabled>Submit Guess</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Result Modal -->
+  <div id="result-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div id="result-header">
+        <div id="result-icon-wrap">
+          <span id="result-icon"></span>
+        </div>
+        <h2 id="result-title"></h2>
+        <p id="result-subtitle"></p>
+      </div>
+      <div id="result-map"></div>
+      <div id="result-stats-row">
+        <div class="result-stat">
+          <span class="stat-label">Best distance</span>
+          <span class="stat-value" id="result-distance">—</span>
+        </div>
+        <div class="result-stat">
+          <span class="stat-label">Tries used</span>
+          <span class="stat-value" id="result-tries">—</span>
+        </div>
+        <div class="result-stat">
+          <span class="stat-label">Threshold</span>
+          <span class="stat-value">≤ 160m</span>
+        </div>
+      </div>
+      <button id="next-round-btn" class="btn btn-primary">Play Next Round</button>
+    </div>
+  </div>
+
+  <!-- Stats Modal -->
+  <div id="stats-modal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-wide">
+      <div class="modal-header">
+        <h2>Your Performance</h2>
+        <button class="modal-close" id="close-stats-btn" aria-label="Close">&times;</button>
+      </div>
+      <div id="stats-summary" class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number" id="stat-total">0</span>
+          <span class="stat-label">Games Played</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="stat-success-rate">0%</span>
+          <span class="stat-label">Success Rate</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="stat-avg-tries">—</span>
+          <span class="stat-label">Avg Tries (wins)</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="stat-streak">0</span>
+          <span class="stat-label">Win Streak</span>
+        </div>
+      </div>
+      <div id="tries-distribution" class="hidden">
+        <h3 class="section-label">Tries distribution (wins)</h3>
+        <div id="tries-bars"></div>
+      </div>
+      <div id="recent-games">
+        <h3 class="section-label">Recent games</h3>
+        <div id="games-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
