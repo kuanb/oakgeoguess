@@ -214,7 +214,7 @@ main {
   min-height: 0;
 }
 
-/* Custom guess pin marker */
+/* Current guess pin */
 .guess-pin {
   width: 22px; height: 22px;
   background: var(--accent);
@@ -224,6 +224,33 @@ main {
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   transition: transform 0.15s;
 }
+
+/* Past wrong-guess pins — stay on map, show popup on hover */
+.wrong-pin {
+  width: 14px; height: 14px;
+  background: var(--danger);
+  border: 2px solid rgba(255,255,255,0.75);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.wrong-pin:hover { opacity: 1; transform: scale(1.2); }
+
+/* Hover popup on wrong-guess pins */
+.guess-popup .mapboxgl-popup-content {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  min-width: 110px;
+}
+.guess-popup .mapboxgl-popup-tip { border-top-color: var(--border) !important; }
+.gp-try  { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-2); margin-bottom: 2px; }
+.gp-dist { font-size: 0.9rem; font-weight: 700; color: var(--danger); line-height: 1.2; }
+.gp-dir  { font-size: 0.75rem; color: var(--text-1); margin-top: 2px; }
 
 /* ---- Feedback bar ---- */
 #guess-feedback {

@@ -42,6 +42,7 @@ const S = {
   viewer: null,       // MapillaryJS viewer
   image: null,        // { id, lat, lng }
   guessMarker: null,  // MapBox marker for current pin
+  wrongMarkers: [],   // past wrong-guess markers kept on map
   guessLat: null,
   guessLng: null,
   triesLeft: CONFIG.MAX_TRIES,
@@ -257,8 +258,11 @@ async function startRound() {
 }
 
 function resetRoundUI() {
-  // Remove guess pin
+  // Remove active guess pin
   if (S.guessMarker) { S.guessMarker.remove(); S.guessMarker = null; }
+  // Remove all lingering wrong-guess pins
+  S.wrongMarkers.forEach(m => m.remove());
+  S.wrongMarkers = [];
   S.guessLat = null;
   S.guessLng = null;
 
@@ -376,13 +380,35 @@ function submitGuess() {
   } else {
     // ---- WRONG GUESS ----
     const dir = directionHint(S.guessLat, S.guessLng, S.image.lat, S.image.lng);
-    showFeedback(
-      `${fmtDist(dist)} away — try heading ${dir}. (${S.triesLeft} tries left)`,
-      '📍', 'error'
-    );
+    const feedbackText = `${fmtDist(dist)} away — try heading ${dir}. (${S.triesLeft} tries left)`;
+    showFeedback(feedbackText, '📍', 'error');
 
-    // Reset pin for next guess
-    if (S.guessMarker) { S.guessMarker.remove(); S.guessMarker = null; }
+    // Convert active pin to a persistent wrong-guess marker with hover popup
+    if (S.guessMarker) {
+      const el = S.guessMarker.getElement();
+      el.className = 'wrong-pin';
+
+      const tryNum = triesUsed;
+      const popupHTML = `
+        <div class="gp-try">Try ${tryNum}</div>
+        <div class="gp-dist">${fmtDist(dist)}</div>
+        <div class="gp-dir">Head ${dir}</div>`;
+
+      const popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false,
+        offset: [0, -10],
+        className: 'guess-popup',
+      }).setHTML(popupHTML);
+
+      const marker = S.guessMarker;
+      el.addEventListener('mouseenter', () => popup.setLngLat(marker.getLngLat()).addTo(S.map));
+      el.addEventListener('mouseleave', () => popup.remove());
+
+      S.wrongMarkers.push(marker);
+      S.guessMarker = null;
+    }
+
     S.guessLat = null;
     S.guessLng = null;
     document.getElementById('submit-btn').disabled = true;
